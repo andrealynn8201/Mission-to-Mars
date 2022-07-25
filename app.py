@@ -1,49 +1,35 @@
-# Import dependencies
-# use Flask to render a template, redirecting to another url, and creating a URL.
+# import dependencies
 from flask import Flask, render_template, redirect, url_for
-# use PyMongo to interact with our Mongo database
 from flask_pymongo import PyMongo
-# to use the scraping code, we will convert from Jupyter notebook to Python.
+
+# import the scraping.py tool we created
 import scraping
 
-# Set up Flask
+# set up Flask
 app = Flask(__name__)
 
 # Use flask_pymongo to set up mongo connection
-#tells Python that our app will connect to Mongo using a URI, a uniform resource 
-# identifier similar to a URL.
-
 # "mongodb://localhost:27017/mars_app" is the URI we'll be using to connect our app to Mongo. 
-# This URI is saying that the app can reach Mongo through our localhost server, using port 27017, 
-# using a database named "mars_app".
-app.config["MONGO_URI"] = "mongodb://localhost:27017/mars_app"
+# This URI is saying that the app can reach Mongo through our localhost server, using port 27017, using a database named "mars_app".
+app.config["MONGO_URI"] = "mongodb://localhost:27017/mars_app" #tells Python that our app will connect to Mongo using a URI, a uniform resource identifier similar to a URL.
 mongo = PyMongo(app)
 
-# define the route for the HTML page
-@app.route('/')
+# define routes
+# This route, @app.route("/"), tells Flask what to display when we're looking at the home page, 
+# index.html (index.html is the default HTML file that we'll use to display the content we've scraped). 
+# This means that when we visit our web app's HTML page, we will see the home page.
+@app.route("/")
 def index():
-    mars = mongo.db.mars.find_one()
-    return render_template('index.html', mars=mars)
+   mars = mongo.db.mars.find_one() #uses PyMongo to find the "mars" collection in our database, assign that path to themars variable for use later
+   return render_template("index.html", mars=mars) #tells Flask to return an HTML template using an index.html file, , mars=mars) tells Python to use the "mars" collection in MongoDB
 
-# next function will set up our scraping route. This route will be the "button" of the web application, 
-# the one that will scrape updated data when we tell it to from the homepage of our web app. It'll be 
-# tied to a button that will run the code when it's clicked.
-
-# defines the route that Flask will be using,“/scrape”, will run the function that we create just beneath it.
-@app.route('/scrape')
-# next lines allow us to access the database, scrape new data using our scraping.py script, update the database, 
-# and return a message when successful. Let's break it down.
+@app.route("/scrape")
 def scrape():
-    # assign a new variable that points to our Mongo database
-    mars = mongo.db.mars
-    # created a new variable to hold the newly scraped data, we're referencing the scrape_all function in 
-    # the scraping.py file exported from Jupyter Notebook.
-    mars_data = scraping.scrape_all()
-    # Now that we've gathered new data, we need to update the database using .update_one()
-    mars.update_one({}, {'$set':mars_data}, upsert=True)
-    # we will add a redirect after successfully scraping the data, This will navigate our page back to 
-    # '/' where we can see the updated content.
-    return redirect('/', code=302)
-# final bit of code we need for Flask is to tell it to run
-if __name__ == '__main__':
-    app.run()
+   mars = mongo.db.mars #assign a new variable that points to our Mongo database: mars = mongo.db.mars
+   mars_data = scraping.scrape_all() #created a new variable to hold the newly scraped data: mars_data = scraping.scrape_all(). In this line, we're referencing the scrape_all function in the scraping.py file
+   mars.update_one({}, {"$set":mars_data}, upsert=True) #update the database using .update_one(). Syntx: .update_one(query_parameter, {"$set": data}, options)
+   return redirect('/', code=302)
+
+if __name__ == "__main__":
+   app.run()
+
