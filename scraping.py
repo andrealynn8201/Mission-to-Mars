@@ -1,10 +1,11 @@
+
 # Import Splinter and BeautifulSoup
 from splinter import Browser
 from bs4 import BeautifulSoup as soup
 import pandas as pd
 import datetime as dt
 from webdriver_manager.chrome import ChromeDriverManager
-
+##########################################################################################
 # define function
 def scrape_all():
     # Initiate headless driver for deployment
@@ -52,6 +53,7 @@ def mars_news(browser):
         return None, None
     return news_title,news_p
 
+
 # ### Featured Images
 # define function
 def featured_image(browser):
@@ -96,10 +98,6 @@ def mars_facts():
     # Converts a table to html and returns
     return df.to_html()
 
-if __name__ == "__main__":
-    # If running as script, print scraped data
-    print(scrape_all())
-
 def hemisphere_data():
     executable_path = {'executable_path': ChromeDriverManager().install()}
     browser = Browser('chrome', **executable_path, headless=True)
@@ -133,5 +131,7 @@ def hemisphere_data():
         return hemispheres
     except:
         return None
-
-
+if __name__ == "__main__":
+    # If running as script, print scraped data
+    print(scrape_all())
+    
