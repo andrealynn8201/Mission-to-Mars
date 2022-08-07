@@ -1,11 +1,10 @@
-
 # Import Splinter and BeautifulSoup
 from splinter import Browser
 from bs4 import BeautifulSoup as soup
 import pandas as pd
 import datetime as dt
 from webdriver_manager.chrome import ChromeDriverManager
-##########################################################################################
+
 # define function
 def scrape_all():
     # Initiate headless driver for deployment
@@ -20,7 +19,7 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
-        "hemispheres": hemisphere_data(),
+        "hemispheres": hemisphere_data(browser),
         "last_modified": dt.datetime.now()
     }
    # Stop webdriver and return data
@@ -98,40 +97,31 @@ def mars_facts():
     # Converts a table to html and returns
     return df.to_html()
 
-def hemisphere_data():
-    executable_path = {'executable_path': ChromeDriverManager().install()}
-    browser = Browser('chrome', **executable_path, headless=True)
-    # 1. Use browser to visit the URL 
-    url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars/'
-    browser.visit(url)
 
     # create a list for the hemisphere dictionaries to load into
-    hemispheres =[]
-    try:
-    # loop through required images
-        for x in range(0,4):
-            # find first link to the full images
-            full_image_elem = browser.find_by_tag('h3')[x]
-            full_image_elem.click()
-            # Parse the resulting html with soup
-            html = browser.html
-            img_soup = soup(html, 'html.parser')
-            # Find the relative image url
-            img_url_rel = img_soup.find('img', class_='wide-image', id=False).get('src')
-            # Use the base URL to create an absolute URL
-            img_url = f'https://astrogeology.usgs.gov/{img_url_rel}'
-            # Find the title of the image
-            img_title = img_soup.find('h2', class_='title').text
-            # Append the list with a dictionary of the url and title
-            hemispheres.append({'img_url':img_url, 'title':img_title})
-            # back up 1 page
-            browser.back()
-        
-        browser.quit()
-        return hemispheres
-    except:
-        return None
+def hemisphere_data(browser):
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+    hemisphere_imgs = []
+    for x in range (0, 4):
+    # find first link to full images
+        full_image_elem = browser.find_by_tag('h3')[x]
+        full_image_elem.click()
+        # parse the resulting html with soup
+        html = browser.html
+        img_soup = soup(html, 'html.parser')
+        # find relative image url
+        img_url_rel = img_soup.find('img', class_='wide-image', id=False).get('src')
+        # use base URL to create an absolute URL
+        img_url = f'https://marshemispheres.com/{img_url_rel}'
+        # find the title of the image
+        img_title = img_soup.find('h2', class_='title').text
+        # append the list with a dictionary of the url and title
+        hemisphere_imgs.append({'img_url':img_url, 'title':img_title})
+        # back up 1 page
+        browser.back()
+    return hemisphere_imgs
+    
 if __name__ == "__main__":
     # If running as script, print scraped data
     print(scrape_all())
-    

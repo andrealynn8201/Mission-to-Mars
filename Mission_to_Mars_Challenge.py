@@ -66,7 +66,7 @@ df.to_html()
 # # Challenge Del 1
 
 # 1. Use browser to visit the URL 
-url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars/'
+url = 'https://marshemispheres.com/'
 browser.visit(url)
 
 # create a list for the hemisphere dictionaries to load into
@@ -83,7 +83,7 @@ for x in range(0,4):
     # Find the relative image url
     img_url_rel = img_soup.find('img', class_='wide-image', id=False).get('src')
     # Use the base URL to create an absolute URL
-    img_url = f'https://astrogeology.usgs.gov/{img_url_rel}'
+    img_url = f'https://marshemispheres.com/{img_url_rel}'
     # Find the title of the image
     img_title = img_soup.find('h2', class_='title').text
     # Append the list with a dictionary of the url and title
